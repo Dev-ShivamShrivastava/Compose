@@ -1,4 +1,4 @@
-package com.learncompose.fragments
+package com.learncompose.fragments.home
 
 import android.R
 import android.util.Log
@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -30,13 +32,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.learncompose.models.HomeDataModel
 import com.learncompose.utils.OnLifecycleEvent
+import com.learncompose.utils.toArrayList
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @Composable
 fun HomeFragment(onNavigate: NavHostController) {
+    val viewModel = hiltViewModel<HomeVM>()
     OnLifecycleEvent { owner, event ->
         when (event) {
             Lifecycle.Event.ON_START -> {
@@ -62,17 +70,31 @@ fun HomeFragment(onNavigate: NavHostController) {
             }
         }
     }
-
-    HomeScreen()
-
-
+    HomeScreen(viewModel)
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeVM) {
     val isSingleSelected = remember {
         mutableStateOf(false)
     }
+
+    var isShowProgressbar = remember {
+        mutableStateOf(true)
+    }
+
+    if (isShowProgressbar.value) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            CircularProgressIndicator()
+        }
+    }
+
+
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceBetween) {
         Row(
             Modifier
@@ -105,98 +127,12 @@ fun HomeScreen() {
             )
         }
         if (isSingleSelected.value) {
-            SetUpRecyclerView(isSingleSelected.value)
+            SetUpRecyclerView(isSingleSelected.value, viewModel) {
+                isShowProgressbar.value = it
+            }
         } else {
-            SetUpRecyclerView(isSingleSelected.value)
-        }
-    }
-
-
-}
-
-@Composable
-fun SetUpRecyclerView(isSingleSelected: Boolean) {
-
-    val list = remember {
-        mutableStateOf(
-            listOf<HomeDataModel>(
-                HomeDataModel(name = "Java", isSelected = false),
-                HomeDataModel(name = "Python", isSelected = false),
-                HomeDataModel(name = "Ruby", isSelected = false),
-                HomeDataModel(name = "Kotlin", isSelected = false),
-                HomeDataModel(name = "C++", isSelected = false),
-                HomeDataModel(name = "c", isSelected = false),
-                HomeDataModel(name = "Data Structure", isSelected = false),
-                HomeDataModel(name = "Go lang", isSelected = false),
-                HomeDataModel(name = "R", isSelected = false),
-                HomeDataModel(name = "Dart", isSelected = false),
-                HomeDataModel(name = "React js", isSelected = false),
-                HomeDataModel(name = "Node js", isSelected = false),
-                HomeDataModel(name = "Angular", isSelected = false),
-                HomeDataModel(name = "PHP", isSelected = false),
-                HomeDataModel(name = "Android", isSelected = false),
-                HomeDataModel(name = "ML", isSelected = false),
-                HomeDataModel(name = "C#", isSelected = false),
-                HomeDataModel(name = "Swift", isSelected = false),
-                HomeDataModel(name = "JavaScript", isSelected = false),
-                HomeDataModel(name = "TypeScript", isSelected = false),
-                HomeDataModel(name = "Scala", isSelected = false),
-                HomeDataModel(name = "PowerShell", isSelected = false),
-                HomeDataModel(name = "Groovy", isSelected = false),
-                HomeDataModel(name = "Shell", isSelected = false),
-                HomeDataModel(name = "Perl", isSelected = false),
-                HomeDataModel(name = "Visual Basic .NET", isSelected = false),
-                HomeDataModel(name = "SQL", isSelected = false),
-                HomeDataModel(name = "Delphi", isSelected = false),
-                HomeDataModel(name = "Lua", isSelected = false),
-                HomeDataModel(name = "Rust", isSelected = false),
-                HomeDataModel(name = "Haskell", isSelected = false),
-                HomeDataModel(name = "AL", isSelected = false)
-            )
-        )
-    }
-
-    LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
-
-        items(list.value.size) { pos ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(100f)
-                    .padding(10.dp, 5.dp)
-                    .clickable {
-                    if (isSingleSelected) {
-                        list.value = list.value.mapIndexed { index, homeDataModel ->
-                            if (pos == index) {
-                                homeDataModel.copy(isSelected = !homeDataModel.isSelected)
-                            } else {
-                                homeDataModel.copy(isSelected = false)
-                            }
-                        }
-                    } else {
-                        list.value = list.value.mapIndexed { index, homeDataModel ->
-                            if (pos == index) {
-                                homeDataModel.copy(isSelected = !homeDataModel.isSelected)
-                            } else {
-                                homeDataModel
-                            }
-                        }
-                    }
-                },
-                elevation = 2.dp,
-                backgroundColor = if (list.value[pos].isSelected) Color.Gray else Color.LightGray,
-                shape = RoundedCornerShape(corner = CornerSize(5.dp))
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(0.dp, 15.dp)
-                ) {
-                    Text(
-                        text = list.value[pos].name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
+            SetUpRecyclerView(isSingleSelected.value, viewModel) {
+                isShowProgressbar.value = it
             }
         }
     }
@@ -204,10 +140,108 @@ fun SetUpRecyclerView(isSingleSelected: Boolean) {
 
 }
 
+@Composable
+fun SetUpRecyclerView(isSingleSelected: Boolean, viewModel: HomeVM, hide: (Boolean) -> Unit) {
+
+
+    if (viewModel.weatherData.value.dataseries?.isNotEmpty() == true) {
+
+        hide(false)
+
+        var isShowDialog = remember {
+            mutableStateOf(true)
+        }
+
+        val list = remember {
+            mutableStateOf(
+                viewModel.weatherData.value.dataseries
+            )
+        }
+
+        LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
+
+            items(list.value?.size ?: 0) { pos ->
+                val isLongPress = remember {
+                    mutableStateOf(false)
+                }
+                Card(
+                    modifier = Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    isLongPress.value = true
+                                    isShowDialog.value = true
+                                },
+                                onTap = {
+                                    if (isSingleSelected) {
+                                        list.value = list.value
+                                            ?.mapIndexed { index, homeDataModel ->
+                                                if (pos == index) {
+                                                    homeDataModel.copy(isSelected = !homeDataModel.isSelected)
+                                                } else {
+                                                    homeDataModel.copy(isSelected = false)
+                                                }
+                                            }
+                                            ?.toArrayList()
+                                    } else {
+                                        list.value = list.value
+                                            ?.mapIndexed { index, homeDataModel ->
+                                                if (pos == index) {
+                                                    homeDataModel.copy(isSelected = !homeDataModel.isSelected)
+                                                } else {
+                                                    homeDataModel
+                                                }
+                                            }
+                                            ?.toArrayList()
+                                    }
+                                }
+                            )
+                        }
+                        .fillMaxWidth()
+                        .fillMaxHeight(100f)
+                        .padding(10.dp, 5.dp),
+                    elevation = 2.dp,
+                    backgroundColor = if (list.value?.get(pos)?.isSelected == true) Color.Gray else Color.LightGray,
+                    shape = RoundedCornerShape(corner = CornerSize(5.dp))
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(0.dp, 15.dp)
+                    ) {
+                        Text(
+                            text = list.value?.get(pos)?.cloudcover.toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                    if (isLongPress.value && isShowDialog.value){
+                        CustomDialog(value = list.value?.get(pos)?.cloudcover.toString(),{ it->
+                            isShowDialog.value = it
+                        },{
+                            list.value = list.value
+                                ?.mapIndexed { index, homeDataModel ->
+                                    if (pos == index) {
+                                        isLongPress.value = false
+                                        homeDataModel.copy(cloudcover = it.toInt())
+                                    } else {
+                                        homeDataModel.copy()
+                                    }
+                                }
+                                ?.toArrayList()
+                        })
+                 }
+                }
+            }
+        }
+
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun preview() {
-    HomeScreen()
+//    HomeScreen()
 }
 
 
@@ -236,7 +270,7 @@ fun CustomDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue: (Str
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Set value",
+                            text = "Edit value",
                             style = TextStyle(
                                 fontSize = 24.sp,
                                 fontFamily = FontFamily.Default,
@@ -273,7 +307,7 @@ fun CustomDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue: (Str
                         ),
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Filled.Home,
+                                imageVector = Icons.Filled.Add,
                                 contentDescription = "",
                                 tint = Color.Green,
                                 modifier = Modifier
@@ -291,6 +325,7 @@ fun CustomDialog(value: String, setShowDialog: (Boolean) -> Unit, setValue: (Str
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                        val txt = ""
                         Button(
                             onClick = {
                                 if (txtField.value.isEmpty()) {

@@ -1,4 +1,4 @@
-package com.learncompose.fragments
+package com.learncompose.fragments.signup
 
 import android.app.DatePickerDialog
 import android.util.Log
@@ -25,12 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavController
 import com.learncompose.R
 import com.learncompose.utils.OnLifecycleEvent
 import java.util.*
 
 @Composable
-fun signUpFragment(onNavigateToLogin: () -> Unit) {
+fun signUpFragment(navController: NavController) {
     val emailValue = remember { mutableStateOf(TextFieldValue()) }
     val passwordValue = remember { mutableStateOf(TextFieldValue()) }
     val confirmPasswordValue = remember { mutableStateOf(TextFieldValue()) }
@@ -206,7 +207,7 @@ fun signUpFragment(onNavigateToLogin: () -> Unit) {
             )
 
             Button(
-                onClick = onNavigateToLogin,
+                onClick = {navController.popBackStack()},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 10.dp), contentPadding = PaddingValues(
@@ -229,7 +230,7 @@ fun signUpFragment(onNavigateToLogin: () -> Unit) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {
-                    onNavigateToLogin()
+                    navController.popBackStack()
                 }
             )
         }

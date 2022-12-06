@@ -25,3 +25,11 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
         }
     }
 }
+
+fun <T> List<T>.toArrayList():ArrayList<T>{
+    val arrayList = ArrayList<T>()
+    this.forEach {
+       arrayList.add(it)
+    }
+    return arrayList
+}
