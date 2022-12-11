@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.learncompose.R
+import com.learncompose.routes.Routes
 import com.learncompose.utils.OnLifecycleEvent
 
 @Composable
@@ -165,7 +166,11 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
 
                 Button(
                     onClick = {
-                        navController.navigate("Home")
+                        navController.navigate(Routes.Home.route){
+                            popUpTo(Routes.Login.route){
+                                inclusive = true
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -188,7 +193,7 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
-                        navController.navigate("Signup")
+                        navController.navigate(Routes.SignUp.route)
                     }
                 )
 

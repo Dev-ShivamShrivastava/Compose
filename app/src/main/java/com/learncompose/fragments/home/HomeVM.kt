@@ -18,20 +18,25 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeVM @Inject constructor(val repository: Repository) : ViewModel() {
 
+    var isShowLoader = mutableStateOf(false)
     var weatherData = mutableStateOf(WeatherForecastModel())
     init {
         callApi()
     }
     fun callApi() {
             repository.callApi(
-                isLoader = true,
                 request = object : ApiProcess<WeatherForecastModel>{
+                    override fun showLoader(loader: Boolean) {
+                        isShowLoader.value =true
+                    }
                     override suspend fun sendRequest(apiService: ApiService): Response<WeatherForecastModel> {
                         return apiService.getUser()
                     }
 
                     override fun success(response: Response<WeatherForecastModel>) {
                         Log.d("data-->","$response")
+                        isShowLoader.value =false
+
                         weatherData.value = response.body()?:WeatherForecastModel()
                     }
 

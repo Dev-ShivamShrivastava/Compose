@@ -1,6 +1,7 @@
 package com.learncompose.fragments.profile
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
+import com.learncompose.routes.Routes
 import com.learncompose.utils.OnLifecycleEvent
 
 @Composable
@@ -47,6 +49,9 @@ fun Profile(navController: NavController) {
     }
 
     Main()
+    BackHandler(true) {
+        navController.navigate(Routes.Home.route)
+    }
 
 
 }
@@ -64,6 +69,7 @@ fun Main() {
                 .background(Color.LightGray),
         )
     }
+
 }
 
 @Preview(showBackground = true)

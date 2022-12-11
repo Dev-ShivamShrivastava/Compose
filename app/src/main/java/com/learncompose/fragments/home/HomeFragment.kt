@@ -79,11 +79,8 @@ fun HomeScreen(viewModel: HomeVM) {
         mutableStateOf(false)
     }
 
-    var isShowProgressbar = remember {
-        mutableStateOf(true)
-    }
 
-    if (isShowProgressbar.value) {
+    if (viewModel.isShowLoader.value) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -128,11 +125,11 @@ fun HomeScreen(viewModel: HomeVM) {
         }
         if (isSingleSelected.value) {
             SetUpRecyclerView(isSingleSelected.value, viewModel) {
-                isShowProgressbar.value = it
+                viewModel.isShowLoader.value = it
             }
         } else {
             SetUpRecyclerView(isSingleSelected.value, viewModel) {
-                isShowProgressbar.value = it
+                viewModel.isShowLoader.value = it
             }
         }
     }
@@ -237,12 +234,6 @@ fun SetUpRecyclerView(isSingleSelected: Boolean, viewModel: HomeVM, hide: (Boole
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun preview() {
-//    HomeScreen()
-}
 
 
 @Composable

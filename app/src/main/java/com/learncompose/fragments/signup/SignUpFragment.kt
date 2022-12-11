@@ -31,7 +31,7 @@ import com.learncompose.utils.OnLifecycleEvent
 import java.util.*
 
 @Composable
-fun signUpFragment(navController: NavController) {
+fun SignUpFragment(navController: NavController) {
     val emailValue = remember { mutableStateOf(TextFieldValue()) }
     val passwordValue = remember { mutableStateOf(TextFieldValue()) }
     val confirmPasswordValue = remember { mutableStateOf(TextFieldValue()) }

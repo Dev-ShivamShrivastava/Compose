@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,19 +15,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.learncompose.fragments.favourite.Favourite
 import com.learncompose.fragments.home.HomeFragment
 import com.learncompose.fragments.login.Login
 import com.learncompose.fragments.profile.Profile
 import com.learncompose.fragments.search.Search
-import com.learncompose.fragments.signup.signUpFragment
-import com.learncompose.models.BottomNavigationItems
+import com.learncompose.fragments.searchdetails.SearchDetails
+import com.learncompose.fragments.signup.SignUpFragment
+import com.learncompose.routes.BottomNavigationItems
+import com.learncompose.routes.Routes
 import dagger.hilt.android.AndroidEntryPoint
-import javax.annotation.meta.When
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import kotlin.text.Typography
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -53,17 +57,15 @@ fun Main() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     var isShowBottomNavigation by rememberSaveable { mutableStateOf(false) }
 
-
-    isShowBottomNavigation = when(navBackStackEntry?.destination?.route){
-        "Login" -> false
-        "Signup" -> false
-        else -> true
+    isShowBottomNavigation = when (navBackStackEntry?.destination?.route) {
+        Routes.Home.route, Routes.Search.route, Routes.Favourite.route, Routes.Profile.route -> true
+        else -> false
     }
 
 
     Scaffold(
         bottomBar = {
-           if (isShowBottomNavigation) BottomNavigation {
+            if (isShowBottomNavigation) BottomNavigation {
                 val currentDestination = navBackStackEntry?.destination
                 bottomItemList.forEach { screen ->
                     BottomNavigationItem(
@@ -80,7 +82,7 @@ fun Main() {
                                     saveState = false
                                 }
                                 launchSingleTop = true
-                                restoreState = true
+                                restoreState = false
 
                             }
                         }
@@ -93,26 +95,35 @@ fun Main() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "Login",
+            startDestination = Routes.Login.route,
             Modifier.padding(innerPadding)
         ) {
-            composable("Login") {
+            composable(Routes.Login.route) {
                 Login(navController)
             }
-            composable("Signup") {
-                signUpFragment(navController)
+            composable(Routes.SignUp.route) {
+                SignUpFragment(navController)
             }
-            composable(BottomNavigationItems.Home.route) {
+            composable(Routes.Home.route) {
                 HomeFragment(navController)
             }
-            composable(BottomNavigationItems.Search.route) {
+            composable(Routes.Search.route) {
                 Search(navController)
             }
-            composable(BottomNavigationItems.Favourite.route) {
+            composable(Routes.Favourite.route) {
                 Favourite(navController)
             }
-            composable(BottomNavigationItems.Profile.route) {
+            composable(Routes.Profile.route) {
                 Profile(navController)
+            }
+            composable(
+                Routes.SearchDetails.route + "/{url}",
+                arguments = listOf(navArgument("url") {
+                    type = NavType.StringType
+                })
+            ) {
+                val backStackEntry = it
+                SearchDetails(navController, backStackEntry.arguments?.getString("url") ?: "")
             }
         }
     }

@@ -12,10 +12,10 @@ import javax.inject.Inject
 class Repository @Inject constructor(private val apiService: ApiService) {
 
     fun <T> callApi(
-        isLoader: Boolean,
         request: ApiProcess<T>
     ) {
         val hitApi  = flow<Response<Any>> {
+            request.showLoader(true)
             emit(request.sendRequest(apiService) as Response<Any>)
         }.flowOn(Dispatchers.IO)
 
@@ -24,8 +24,9 @@ class Repository @Inject constructor(private val apiService: ApiService) {
                 Log.d("data-->","${it.cause}")
                 Log.d("data-->","${it.message}")
                 Log.d("data-->","${it.localizedMessage}")
-
+                request.showLoader(false)
             }.collect{response->
+                request.showLoader(false)
                 request.success(response as Response<T>)
             }
         }
