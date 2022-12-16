@@ -72,7 +72,7 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Button(
                     onClick = {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
@@ -79,16 +80,14 @@ fun Main(navController: NavController?) {
                 .fillMaxSize()
         ) {
             val list = remember {
-                mutableStateOf(
                     viewModel.newsResponse.value.articles
-                )
             }
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(list.value?.size ?: 0) { position ->
-                    val data = list.value?.get(position)
+                items(list?.size ?: 0) { position ->
+                    val data = list?.get(position)
                     val context = LocalContext.current
                     Card(
                         modifier = Modifier
@@ -107,7 +106,7 @@ fun Main(navController: NavController?) {
                         Column() {
                             Image(
                                 painter = rememberAsyncImagePainter(
-                                    model = list.value?.get(
+                                    model = list?.get(
                                         position
                                     )?.urlToImage,
                                     placeholder = painterResource(id = com.learncompose.R.drawable.ic_image),
