@@ -34,9 +34,7 @@ class HomeVM @Inject constructor(val repository: Repository) : ViewModel() {
                     }
 
                     override fun success(response: Response<WeatherForecastModel>) {
-                        Log.d("data-->","$response")
                         isShowLoader.value =false
-
                         weatherData.value = response.body()?:WeatherForecastModel()
                     }
 

@@ -2,7 +2,11 @@ package com.learncompose.fragments.home
 
 import android.R
 import android.util.Log
-import androidx.compose.foundation.*
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,34 +17,29 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.learncompose.models.HomeDataModel
 import com.learncompose.utils.OnLifecycleEvent
 import com.learncompose.utils.toArrayList
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeFragment(onNavigate: NavHostController) {
@@ -71,6 +70,7 @@ fun HomeFragment(onNavigate: NavHostController) {
         }
     }
     HomeScreen(viewModel)
+
 }
 
 @Composable
@@ -142,6 +142,7 @@ fun SetUpRecyclerView(isSingleSelected: Boolean, viewModel: HomeVM, hide: (Boole
 
 
     if (viewModel.weatherData.value.dataseries?.isNotEmpty() == true) {
+        ShowSnakeBar()
 
         hide(false)
 
@@ -211,10 +212,10 @@ fun SetUpRecyclerView(isSingleSelected: Boolean, viewModel: HomeVM, hide: (Boole
                             fontSize = 16.sp
                         )
                     }
-                    if (isLongPress.value && isShowDialog.value){
-                        CustomDialog(value = list.value?.get(pos)?.cloudcover.toString(),{ it->
+                    if (isLongPress.value && isShowDialog.value) {
+                        CustomDialog(value = list.value?.get(pos)?.cloudcover.toString(), { it ->
                             isShowDialog.value = it
-                        },{
+                        }, {
                             list.value = list.value
                                 ?.mapIndexed { index, homeDataModel ->
                                     if (pos == index) {
@@ -226,14 +227,34 @@ fun SetUpRecyclerView(isSingleSelected: Boolean, viewModel: HomeVM, hide: (Boole
                                 }
                                 ?.toArrayList()
                         })
-                 }
+                    }
                 }
             }
         }
-
     }
 }
 
+@Composable
+fun ShowSnakeBar() {
+    val scaffoldState: ScaffoldState = rememberScaffoldState()
+    val coroutineScope: CoroutineScope = rememberCoroutineScope()
+
+    Scaffold(scaffoldState = scaffoldState) { inputPadding ->
+            LaunchedEffect(key1 = "SnakeBar") {
+                coroutineScope.launch {
+                    val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                        message = "This is your message",
+                        actionLabel = "Do something", SnackbarDuration.Short
+                    )
+                    when (snackbarResult) {
+                        SnackbarResult.Dismissed -> {}
+                        SnackbarResult.ActionPerformed -> {}
+                    }
+                }
+            }
+    }
+    
+}
 
 
 @Composable

@@ -1,11 +1,13 @@
 package com.learncompose.fragments.login
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -14,24 +16,38 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
+import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
 import com.learncompose.R
+import com.learncompose.activity.MainActivity
 import com.learncompose.routes.Routes
 import com.learncompose.utils.OnLifecycleEvent
+import com.learncompose.utils.showToast
+import java.util.concurrent.TimeUnit
+
 
 @Composable
-fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>()) {
+fun Login(navController: NavController, viewModel: LoginVM? = viewModel<LoginVM>()) {
 
-//    val viewModel = hiltViewModel<LoginVM>()
     OnLifecycleEvent { owner, event ->
         when (event) {
             Lifecycle.Event.ON_START -> {
@@ -57,6 +73,7 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
             }
         }
     }
+
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -106,7 +123,7 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
                     onValueChange = { emailValue.value = it },
                     placeholder = {
                         Text(
-                            text = "Please enter your email address"
+                            text = "Please enter your phone number"
                         )
                     },
                     leadingIcon = {
@@ -122,33 +139,37 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
                     colors = TextFieldDefaults.textFieldColors(
                         backgroundColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent
+                    ), keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
                     )
                 )
 
-                TextField(
-                    value = passwordValue.value,
-                    onValueChange = { passwordValue.value = it },
-                    placeholder = {
-                        Text(
-                            text = "Please enter password"
+                if (false) {
+                    TextField(
+                        value = passwordValue.value,
+                        onValueChange = { passwordValue.value = it },
+                        placeholder = {
+                            Text(
+                                text = "Please enter password"
+                            )
+                        },
+                        visualTransformation = PasswordVisualTransformation(),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_password),
+                                contentDescription = "",
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp, 10.dp)
+                            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp)),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent
                         )
-                    },
-                    visualTransformation = PasswordVisualTransformation(),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_password),
-                            contentDescription = "",
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp, 10.dp)
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp)),
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent
                     )
-                )
+                }
 
                 if (isShowForgotPassword.value) {
                     Text(
@@ -163,14 +184,19 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
+                val context = LocalContext.current
                 Button(
                     onClick = {
-                        navController.navigate(Routes.Home.route){
-                            popUpTo(Routes.Login.route){
-                                inclusive = true
+                        if (emailValue.value.text.length == 10){
+                            navController.navigate(Routes.OtpVerify.route+"/${emailValue.value.text}") {
+                                popUpTo(Routes.Login.route) {
+                                    inclusive = false
+                                }
                             }
+                        }else{
+                            context.showToast("Please enter valid phone number")
                         }
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -202,4 +228,11 @@ fun Login(navController: NavController, viewModel: LoginVM = viewModel<LoginVM>(
 
 
     }
+
+
+}
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    Login(rememberNavController(), null)
 }

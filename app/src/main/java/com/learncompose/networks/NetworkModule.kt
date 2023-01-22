@@ -1,5 +1,6 @@
 package com.learncompose.networks
 
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,6 +49,13 @@ class NetworkModule {
         retrofit: Retrofit
     ):ApiService{
         return  retrofit.create(ApiService::class.java)
+    }
+
+
+    @Singleton
+    @Provides
+    fun getFirebaseInstance(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
     }
 
 }

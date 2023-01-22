@@ -1,5 +1,6 @@
 package com.learncompose.activity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,7 @@ import androidx.navigation.navArgument
 import com.learncompose.fragments.favourite.Favourite
 import com.learncompose.fragments.home.HomeFragment
 import com.learncompose.fragments.login.Login
+import com.learncompose.fragments.otpverify.OtpVerify
 import com.learncompose.fragments.profile.Profile
 import com.learncompose.fragments.search.Search
 import com.learncompose.fragments.searchdetails.SearchDetails
@@ -31,13 +33,10 @@ import com.learncompose.fragments.signup.SignUpFragment
 import com.learncompose.routes.BottomNavigationItems
 import com.learncompose.routes.Routes
 import dagger.hilt.android.AndroidEntryPoint
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import kotlin.text.Typography
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -81,6 +80,7 @@ fun Main() {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = false
                                 }
+
                                 launchSingleTop = true
                                 restoreState = false
 
@@ -103,6 +103,12 @@ fun Main() {
             }
             composable(Routes.SignUp.route) {
                 SignUpFragment(navController)
+            }
+            composable(Routes.OtpVerify.route+"/{phoneNo}", arguments = listOf(navArgument("phoneNo"){
+                type = NavType.StringType
+            })) {
+                val backStackEntry = it
+                OtpVerify(navController,backStackEntry.arguments?.getString("phoneNo") ?: "")
             }
             composable(Routes.Home.route) {
                 HomeFragment(navController)
